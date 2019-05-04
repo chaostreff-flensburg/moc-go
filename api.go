@@ -1,4 +1,4 @@
-package main
+package moc
 
 import (
 	"encoding/json"
