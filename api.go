@@ -15,6 +15,7 @@ type Client struct {
 	Endpoint    string
 	LastMessage *models.Message
 	NewMessages chan *models.Message
+	Log         *logrus.Entry
 }
 
 // NewClient create a new MOC API Client
@@ -22,13 +23,14 @@ func NewClient(endpoint string) *Client {
 	return &Client{
 		Endpoint:    endpoint,
 		NewMessages: make(chan *models.Message, 5),
+		Log:         log.WithFields(log.Fields{"component": "moc-api"}),
 	}
 }
 
 // Request queries the last messages. To do this, attach to the set endpoint `/messages`.
 // If a new message is found, it is additionally packed into the channel client.NewMessage.
 func (c *Client) Request() (error, []*models.Message) {
-	log.Info("Crawl new Messages...")
+	c.Log.Info("Crawl new Messages...")
 
 	url := fmt.Sprintf("%s/messages", c.Endpoint)
 
@@ -46,7 +48,7 @@ func (c *Client) Request() (error, []*models.Message) {
 
 	resp, err := netClient.Get(url)
 	if err != nil {
-		log.Fatalln(err)
+		c.Log.Fatalln(err)
 		return err, []*models.Message{}
 	}
 
@@ -60,7 +62,7 @@ func (c *Client) Request() (error, []*models.Message) {
 	// push new message to queue
 	latestMessage := (result)[len(result)-1]
 	if c.LastMessage == nil || c.LastMessage.ID != latestMessage.ID {
-		log.Info("New Message detected")
+		c.Log.Info("New Message detected")
 		c.LastMessage = latestMessage
 
 		// if channel full, discarding first value
