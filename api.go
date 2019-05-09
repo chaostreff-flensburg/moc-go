@@ -3,10 +3,11 @@ package moc
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net"
 	"net/http"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/chaostreff-flensburg/moc-go/models"
 )
@@ -15,7 +16,7 @@ type Client struct {
 	Endpoint    string
 	LastMessage *models.Message
 	NewMessages chan *models.Message
-	Log         *logrus.Entry
+	Log         *log.Entry
 }
 
 // NewClient create a new MOC API Client
